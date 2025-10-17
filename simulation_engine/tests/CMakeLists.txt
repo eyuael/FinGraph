@@ -1,0 +1,3 @@
+add_executable(test_runner tests.cpp)
+target_link_libraries(test_runner PRIVATE fingraph_simulation)
+add_test(NAME FinGraphSimulationTests COMMAND test_runner)

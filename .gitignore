@@ -1,0 +1,14 @@
+# Next.js
+.next/
+out/
+node_modules/
+
+# C++
+build/
+
+# Python
+__pycache__/
+.venv/
+
+# Logs
+*.log

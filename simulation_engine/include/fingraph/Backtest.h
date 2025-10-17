@@ -1,9 +1,9 @@
 #pragma once
 
-#include "MarketData.h"
-#include "Strategy.h"
-#include "Portfolio.h"
-#include "PerformanceMetrics.h"
+#include "fingraph/MarketData.h"
+#include "fingraph/Strategy.h"
+#include "fingraph/Portfolio.h"
+#include "fingraph/PerformanceMetrics.h"
 #include <memory>
 #include <map>
 #include <string>

@@ -1,5 +1,5 @@
 #pragma once
-#include "Trade.h"
+#include "fingraph/Trade.h"
 #include <vector>
 #include <map>
 #include <string>

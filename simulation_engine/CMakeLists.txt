@@ -11,6 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Define the include directories
 include_directories(include)
+include_directories(/opt/homebrew/include)
 
 # --- Build the Core Library ---
 # This creates a static library (.a on Linux/macOS, .lib on Windows)

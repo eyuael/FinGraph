@@ -1,0 +1,18 @@
+CompileFlags:
+  Add: 
+    - -std=c++20
+    - -I../simulation_engine/include
+    - -Isrc
+    - -Isrc/controllers
+    - -Isrc/services
+    - -Isrc/utils
+
+Diagnostics:
+  UnusedIncludes: Strict
+  ClangTidy:
+    Add: [modernize*, readability*, performance*]
+    Remove: [modernize-use-trailing-return-type]
+
+Index:
+  Background: Build
+  Standard: C++20

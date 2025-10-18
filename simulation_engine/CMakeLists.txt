@@ -1,4 +1,7 @@
 # Minimum version of CMake required
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+
 cmake_minimum_required(VERSION 3.16)
 
 # Define the project name and language

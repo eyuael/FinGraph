@@ -19,6 +19,7 @@ add_executable(FinGraphWebServer
     src/main.cpp
     src/controllers/BacktestController.cpp
     src/controllers/DataController.cpp
+    src/controllers/StrategyController.cpp
     src/services/BacktestService.cpp
     src/services/DataService.cpp
     src/utils/SimulationEngineClient.cpp

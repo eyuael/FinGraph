@@ -5,7 +5,6 @@
 #include "fingraph/strategies/MovingAverageStrategy.h"
 #include "fingraph/strategies/RSIStrategy.h"
 #include <memory>
-#include <iostream>
 #include <stdexcept>
 #include <map>
 

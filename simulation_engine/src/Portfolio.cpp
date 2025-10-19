@@ -1,6 +1,5 @@
 #include "fingraph/Portfolio.h"
 #include "fingraph/Trade.h"
-#include <iostream>
 
 namespace fingraph {
 

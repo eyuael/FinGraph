@@ -1,0 +1,20 @@
+[
+{
+  "directory": "/Users/eyuaelberhe/FinGraph/data_ingestion/build",
+  "command": "/usr/bin/c++  -I/Users/eyuaelberhe/FinGraph/data_ingestion/../simulation_engine/include -I/Users/eyuaelberhe/FinGraph/data_ingestion/include -I/opt/homebrew/Cellar/nlohmann-json/3.12.0/include -I/opt/homebrew/Cellar/libpqxx/7.10.3/include -I/opt/homebrew/Cellar/cpr/1.10.5/include -isystem /opt/homebrew/include -std=gnu++20 -arch arm64 -o CMakeFiles/data_ingestion_service.dir/src/main.cpp.o -c /Users/eyuaelberhe/FinGraph/data_ingestion/src/main.cpp",
+  "file": "/Users/eyuaelberhe/FinGraph/data_ingestion/src/main.cpp",
+  "output": "CMakeFiles/data_ingestion_service.dir/src/main.cpp.o"
+},
+{
+  "directory": "/Users/eyuaelberhe/FinGraph/data_ingestion/build",
+  "command": "/usr/bin/c++  -I/Users/eyuaelberhe/FinGraph/data_ingestion/../simulation_engine/include -I/Users/eyuaelberhe/FinGraph/data_ingestion/include -I/opt/homebrew/Cellar/nlohmann-json/3.12.0/include -I/opt/homebrew/Cellar/libpqxx/7.10.3/include -I/opt/homebrew/Cellar/cpr/1.10.5/include -isystem /opt/homebrew/include -std=gnu++20 -arch arm64 -o CMakeFiles/data_ingestion_service.dir/src/APIClient.cpp.o -c /Users/eyuaelberhe/FinGraph/data_ingestion/src/APIClient.cpp",
+  "file": "/Users/eyuaelberhe/FinGraph/data_ingestion/src/APIClient.cpp",
+  "output": "CMakeFiles/data_ingestion_service.dir/src/APIClient.cpp.o"
+},
+{
+  "directory": "/Users/eyuaelberhe/FinGraph/data_ingestion/build",
+  "command": "/usr/bin/c++  -I/Users/eyuaelberhe/FinGraph/data_ingestion/../simulation_engine/include -I/Users/eyuaelberhe/FinGraph/data_ingestion/include -I/opt/homebrew/Cellar/nlohmann-json/3.12.0/include -I/opt/homebrew/Cellar/libpqxx/7.10.3/include -I/opt/homebrew/Cellar/cpr/1.10.5/include -isystem /opt/homebrew/include -std=gnu++20 -arch arm64 -o CMakeFiles/data_ingestion_service.dir/src/DatabaseManager.cpp.o -c /Users/eyuaelberhe/FinGraph/data_ingestion/src/DatabaseManager.cpp",
+  "file": "/Users/eyuaelberhe/FinGraph/data_ingestion/src/DatabaseManager.cpp",
+  "output": "CMakeFiles/data_ingestion_service.dir/src/DatabaseManager.cpp.o"
+}
+]

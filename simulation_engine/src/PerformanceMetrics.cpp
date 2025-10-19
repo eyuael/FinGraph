@@ -1,7 +1,6 @@
 #include "fingraph/PerformanceMetrics.h"
 #include "fingraph/Trade.h"
 #include <vector>
-#include <algorithm>
 #include <cmath>
 #include <numeric>
 #include <map>

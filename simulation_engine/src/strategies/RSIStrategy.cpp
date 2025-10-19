@@ -1,6 +1,5 @@
 #include "fingraph/strategies/RSIStrategy.h"
 #include <vector>
-#include <algorithm>
 #include <numeric>
 
 namespace fingraph {

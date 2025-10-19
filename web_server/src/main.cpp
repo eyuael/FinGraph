@@ -1,6 +1,7 @@
 #include <drogon/drogon.h>
 #include "controllers/BacktestController.h"
 #include "controllers/DataController.h"
+#include "controllers/StrategyController.h"
 
 int main() {
     // Set config file path

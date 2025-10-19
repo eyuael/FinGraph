@@ -12,3 +12,27 @@ __pycache__/
 
 # Logs
 *.log
+
+data_ingestion/config.json
+
+data/
+
+data_ingestion/.cache
+data_ingestion/.vscode
+
+web_server/.cache/clangd/index
+
+simulation_enginge/.cache
+web_server/.cache/clangd/index
+web_server/.cache/clangd/index/BacktestController.h.34B8CE80B03A4767.idx
+web_server/.cache/clangd/index/BacktestService.cpp.BB8EA29480BD54A7.idx
+web_server/.cache/clangd/index/BacktestService.h.07C879BD12EFE2B4.idx
+web_server/.cache/clangd/index/DataController.cpp.5363A6534514D67A.idx
+web_server/.cache/clangd/index/DataController.h.772620BC5033A30D.idx
+web_server/.cache/clangd/index/DataService.cpp.F537016C4B419B63.idx
+web_server/.cache/clangd/index/DataService.h.BB4FAA9E971DA59A.idx
+web_server/.cache/clangd/index/main.cpp.1667AD181CAAA7BD.idx
+web_server/.cache/clangd/index/SimulationEngineClient.cpp.B24B3AF097F6179D.idx
+web_server/.cache/clangd/index/SimulationEngineClient.h.B1AE9D4F00E7917E.idx
+
+backtest_engine/.cache/clangd/index

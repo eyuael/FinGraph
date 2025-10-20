@@ -20,9 +20,10 @@ data/
 data_ingestion/.cache
 data_ingestion/.vscode
 
-web_server/.cache/clangd/index
+web_server/.cache
 
-simulation_enginge/.cache
+simulation_engine/.cache
+
 web_server/.cache/clangd/index
 web_server/.cache/clangd/index/BacktestController.h.34B8CE80B03A4767.idx
 web_server/.cache/clangd/index/BacktestService.cpp.BB8EA29480BD54A7.idx

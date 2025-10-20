@@ -1,0 +1,52 @@
+# FinGraph C++ Base Image
+FROM ubuntu:22.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV CMAKE_VERSION=3.28.1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc-11 \
+    g++-11 \
+    cmake \
+    git \
+    wget \
+    curl \
+    pkg-config \
+    libssl-dev \
+    libpq-dev \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set C++20 as default
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100 \
+    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 100 \
+    && update-alternatives --set gcc /usr/bin/gcc-11 \
+    && update-alternatives --set g++ /usr/bin/g++-11
+
+# Install vcpkg for package management
+RUN git clone https://github.com/Microsoft/vcpkg.git /opt/vcpkg \
+    && /opt/vcpkg/bootstrap-vcpkg.sh \
+    && ln -s /opt/vcpkg/vcpkg /usr/local/bin/vcpkg
+
+# Install common C++ libraries using vcpkg
+RUN vcpkg install \
+    nlohmann-json \
+    cpr \
+    drogon \
+    && vcpkg integrate install
+
+# Set working directory
+WORKDIR /app
+
+# Create non-root user
+RUN useradd -m -u 1000 fingraph && chown -R fingraph:fingraph /app
+USER fingraph
+
+# Set environment variables for vcpkg
+ENV VCPKG_ROOT=/opt/vcpkg
+ENV CMAKE_TOOLCHAIN_FILE=/opt/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+CMD ["/bin/bash"]

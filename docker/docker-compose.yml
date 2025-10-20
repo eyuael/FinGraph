@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: fingraph-postgres
+    environment:
+      POSTGRES_DB: fingraph
+      POSTGRES_USER: fingraph
+      POSTGRES_PASSWORD: fingraph123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - fingraph-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fingraph"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Data Ingestion Service
+  data-ingestion:
+    build:
+      context: .
+      dockerfile: docker/data-ingestion/Dockerfile
+    container_name: fingraph-data-ingestion
+    ports:
+      - "8081:8081"
+    environment:
+      - DATABASE_URL=postgresql://fingraph:fingraph123@postgres:5432/fingraph
+      - API_BASE_URL=https://api.example.com
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - ../../data_ingestion:/app/data_ingestion
+      - ../../simulation_engine:/app/simulation_engine
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fingraph-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Simulation Engine Service
+  simulation-engine:
+    build:
+      context: .
+      dockerfile: docker/simulation-engine/Dockerfile
+    container_name: fingraph-simulation-engine
+    ports:
+      - "8082:8082"
+    environment:
+      - LOG_LEVEL=DEBUG
+      - SERVICE_MODE=server
+    volumes:
+      - ../../simulation_engine:/app/simulation_engine
+      - ./logs:/app/logs
+    networks:
+      - fingraph-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "./fingraph_cli", "--version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Web Server
+  web-server:
+    build:
+      context: .
+      dockerfile: docker/web-server/Dockerfile
+    container_name: fingraph-web-server
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgresql://fingraph:fingraph123@postgres:5432/fingraph
+      - DATA_INGESTION_URL=http://data-ingestion:8081
+      - SIMULATION_ENGINE_URL=http://simulation-engine:8082
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - ../../web_server:/app/web_server
+      - ../../simulation_engine:/app/simulation_engine
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      data-ingestion:
+        condition: service_healthy
+      simulation-engine:
+        condition: service_healthy
+    networks:
+      - fingraph-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+
+networks:
+  fingraph-network:
+    driver: bridge

@@ -10,7 +10,7 @@ COPY ../../simulation_engine /app/simulation_engine
 # Create build directory
 WORKDIR /app/simulation_engine/build
 
-# Build the simulation engine library and CLI
+# Build the simulation engine library, CLI, and gRPC server
 RUN cmake .. \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_TOOLCHAIN_FILE=/opt/vcpkg/scripts/buildsystems/vcpkg.cmake \
@@ -19,9 +19,11 @@ RUN cmake .. \
 # Production stage
 FROM ubuntu:22.04
 
-# Install runtime dependencies only
+# Install runtime dependencies including gRPC
 RUN apt-get update && apt-get install -y \
     curl \
+    libgrpc++1 \
+    libprotobuf23 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
@@ -30,6 +32,7 @@ USER fingraph
 
 # Copy built binaries from builder stage
 COPY --from=builder /app/simulation_engine/build/fingraph_cli /app/fingraph_cli
+COPY --from=builder /app/simulation_engine/build/fingraph_grpc_server /app/fingraph_grpc_server
 COPY --from=builder /app/simulation_engine/build/libfingraph_simulation.a /app/libfingraph_simulation.a
 
 # Copy test binaries if they exist
@@ -38,12 +41,12 @@ COPY --from=builder /app/simulation_engine/build/tests /app/tests 2>/dev/null ||
 # Set working directory
 WORKDIR /app
 
-# Expose port (if running as service)
-EXPOSE 8082
+# Expose gRPC port
+EXPOSE 50051
 
-# Health check
+# Health check for gRPC server
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD ./fingraph_cli --version || exit 1
+    CMD ./fingraph_grpc_server --help || exit 1
 
-# Run the CLI by default (can be overridden for service mode)
-CMD ["./fingraph_cli", "--help"]
+# Run the gRPC server by default
+CMD ["./fingraph_grpc_server", "--address", "0.0.0.0:50051"]

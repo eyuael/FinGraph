@@ -1,0 +1,115 @@
+syntax = "proto3";
+
+package fingraph;
+
+service SimulationEngine {
+    rpc SubmitBacktest(BacktestRequest) returns (JobResponse);
+    rpc GetJobStatus(JobStatusRequest) returns (JobStatusResponse);
+    rpc GetJobResults(JobResultsRequest) returns (BacktestResults);
+    rpc ListStrategies(ListStrategiesRequest) returns (ListStrategiesResponse);
+    rpc GetStrategyParameters(StrategyParamsRequest) returns (StrategyParamsResponse);
+    rpc CancelJob(CancelJobRequest) returns (CancelJobResponse);
+    rpc StreamJobProgress(JobStatusRequest) returns (stream JobProgressUpdate);
+}
+
+message BacktestRequest {
+    string data_path = 1;
+    string strategy_name = 2;
+    map<string, double> strategy_params = 3;
+    double initial_cash = 4;
+    string job_id = 5;
+}
+
+message JobResponse {
+    string job_id = 1;
+    JobStatus status = 2;
+    string message = 3;
+}
+
+enum JobStatus {
+    PENDING = 0;
+    RUNNING = 1;
+    COMPLETED = 2;
+    FAILED = 3;
+    CANCELLED = 4;
+}
+
+message JobStatusRequest {
+    string job_id = 1;
+}
+
+message JobStatusResponse {
+    string job_id = 1;
+    JobStatus status = 2;
+    double progress = 3;
+    string message = 4;
+    int64 start_time = 5;
+    int64 estimated_completion = 6;
+}
+
+message JobProgressUpdate {
+    string job_id = 1;
+    double progress = 2;
+    string current_step = 3;
+    string message = 4;
+}
+
+message BacktestResults {
+    string job_id = 1;
+    double total_return = 2;
+    double sharpe_ratio = 3;
+    double max_drawdown = 4;
+    double win_rate = 5;
+    repeated Trade trades = 6;
+    repeated EquityPoint equity_curve = 7;
+}
+
+message Trade {
+    string symbol = 1;
+    string type = 2;
+    double quantity = 3;
+    double price = 4;
+    int64 timestamp = 5;
+}
+
+message EquityPoint {
+    int64 timestamp = 1;
+    double value = 2;
+}
+
+message ListStrategiesRequest {}
+
+message ListStrategiesResponse {
+    repeated StrategyInfo strategies = 1;
+}
+
+message StrategyInfo {
+    string name = 1;
+    string description = 2;
+    repeated ParameterInfo parameters = 3;
+}
+
+message ParameterInfo {
+    string name = 1;
+    string type = 2;
+    double default_value = 3;
+    double min_value = 4;
+    double max_value = 5;
+}
+
+message StrategyParamsRequest {
+    string strategy_name = 1;
+}
+
+message StrategyParamsResponse {
+    repeated ParameterInfo parameters = 1;
+}
+
+message CancelJobRequest {
+    string job_id = 1;
+}
+
+message CancelJobResponse {
+    bool success = 1;
+    string message = 2;
+}

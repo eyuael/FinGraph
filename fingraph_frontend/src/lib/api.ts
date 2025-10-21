@@ -32,8 +32,19 @@ export interface StrategyData {
 export interface BacktestRequest {
   strategyId: string;
   parameters: Record<string, string | number | boolean>;
-  startDate: string;
-  endDate: string;
+  startDate?: string;
+  endDate?: string;
+  dataId?: string;
+  initialCash?: number;
+}
+
+export interface JobStatus {
+  job_id: string;
+  status: 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+  progress: number;
+  message: string;
+  start_time?: number;
+  estimated_completion?: number;
 }
 
 export interface DataInfo {
@@ -89,29 +100,86 @@ export async function fetchStrategyData(strategyId: string): Promise<StrategyDat
   }
 }
 
-// Run backtest via C++ REST API
+// Run backtest via C++ REST API (now async)
 export async function runBacktest(request: BacktestRequest): Promise<string> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/v1/backtest`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        dataId: 'default_data', // This should come from data selection
+        dataId: request.dataId || 'default_data',
         strategy: request.strategyId,
-        initialCash: 10000,
+        initialCash: request.initialCash || 10000,
         parameters: request.parameters
       })
     });
     
     if (!response.ok) {
-      throw new Error('Failed to run backtest');
+      throw new Error('Failed to submit backtest');
     }
     
     const result = await response.json();
-    return result.strategyId || result.id || `backtest_${Date.now()}`;
+    return result.job_id || result.id || `backtest_${Date.now()}`;
   } catch (error) {
-    console.error('Error running backtest:', error);
-    throw new Error('Failed to run backtest');
+    console.error('Error submitting backtest:', error);
+    throw new Error('Failed to submit backtest');
+  }
+}
+
+// Get backtest job status
+export async function getBacktestStatus(jobId: string): Promise<JobStatus | null> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/backtest/${jobId}/status`);
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching backtest status:', error);
+    return null;
+  }
+}
+
+// Poll for backtest completion
+export async function pollBacktestCompletion(
+  jobId: string, 
+  onProgress?: (status: JobStatus) => void,
+  pollInterval: number = 1000
+): Promise<BacktestResults | null> {
+  try {
+    while (true) {
+      const status = await getBacktestStatus(jobId);
+      if (!status) {
+        throw new Error('Failed to get job status');
+      }
+      
+      if (onProgress) {
+        onProgress(status);
+      }
+      
+      if (status.status === 'COMPLETED') {
+        return await getBacktestResults(jobId);
+      } else if (status.status === 'FAILED' || status.status === 'CANCELLED') {
+        throw new Error(status.message || `Job ${status.status.toLowerCase()}`);
+      }
+      
+      // Wait before polling again
+      await new Promise(resolve => setTimeout(resolve, pollInterval));
+    }
+  } catch (error) {
+    console.error('Error polling backtest completion:', error);
+    throw error;
+  }
+}
+
+// Cancel backtest job
+export async function cancelBacktest(jobId: string): Promise<boolean> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/backtest/${jobId}/cancel`, {
+      method: 'POST'
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Error cancelling backtest:', error);
+    return false;
   }
 }
 
@@ -142,7 +210,7 @@ export async function fetchStrategies(): Promise<StrategyData[]> {
 // Get backtest results by ID
 export async function fetchBacktestResults(backtestId: string): Promise<any> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/v1/backtest/${backtestId}`);
+    const response = await fetch(`${API_BASE_URL}/api/v1/backtest/${backtestId}/results`);
     if (!response.ok) return null;
     return await response.json();
   } catch (error) {

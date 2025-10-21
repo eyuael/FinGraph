@@ -23,7 +23,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # Data Ingestion Service
+  # Data Ingestion HTTP Service
   data-ingestion:
     build:
       context: .
@@ -32,16 +32,14 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - DATABASE_URL=postgresql://fingraph:fingraph123@postgres:5432/fingraph
+      - DATABASE_URL=sqlite:///app/data/fingraph_data.db
       - API_BASE_URL=https://api.example.com
       - LOG_LEVEL=DEBUG
     volumes:
       - ../../data_ingestion:/app/data_ingestion
       - ../../simulation_engine:/app/simulation_engine
       - ./logs:/app/logs
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - ./data:/app/data
     networks:
       - fingraph-network
     restart: unless-stopped
@@ -51,25 +49,27 @@ services:
       timeout: 10s
       retries: 3
 
-  # Simulation Engine Service
+  # Simulation Engine gRPC Service
   simulation-engine:
     build:
       context: .
       dockerfile: docker/simulation-engine/Dockerfile
     container_name: fingraph-simulation-engine
     ports:
-      - "8082:8082"
+      - "50051:50051"
     environment:
       - LOG_LEVEL=DEBUG
-      - SERVICE_MODE=server
+      - SERVICE_MODE=grpc
+      - DATABASE_URL=sqlite:///app/data/fingraph.db
     volumes:
       - ../../simulation_engine:/app/simulation_engine
       - ./logs:/app/logs
+      - ./data:/app/data
     networks:
       - fingraph-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "./fingraph_cli", "--version"]
+      test: ["CMD", "./fingraph_grpc_server", "--help"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -83,17 +83,16 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DATABASE_URL=postgresql://fingraph:fingraph123@postgres:5432/fingraph
+      - DATABASE_URL=sqlite:///app/data/fingraph_web.db
       - DATA_INGESTION_URL=http://data-ingestion:8081
-      - SIMULATION_ENGINE_URL=http://simulation-engine:8082
+      - SIMULATION_ENGINE_GRPC_URL=simulation-engine:50051
       - LOG_LEVEL=DEBUG
     volumes:
       - ../../web_server:/app/web_server
       - ../../simulation_engine:/app/simulation_engine
       - ./logs:/app/logs
+      - ./data:/app/data
     depends_on:
-      postgres:
-        condition: service_healthy
       data-ingestion:
         condition: service_healthy
       simulation-engine:
@@ -108,7 +107,7 @@ services:
       retries: 3
 
 volumes:
-  postgres_data:
+  fingraph_data:
 
 networks:
   fingraph-network:
